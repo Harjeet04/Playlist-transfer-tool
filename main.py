@@ -43,7 +43,6 @@ def search_youtube_song(youtube, song_name):
     request = youtube.search().list(q=song_name, part="snippet", maxResults=1, type="video")
     response = request.execute()
     return response["items"][0]["id"]["videoId"] if response["items"] else None
-
 # Get User's YouTube Playlists
 def get_youtube_playlists(youtube):
     playlists = []
