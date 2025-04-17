@@ -122,19 +122,42 @@ def transfer_playlists(sp, youtube):
             youtube_playlist_id = create_youtube_playlist(youtube, name)
             print(f"Created new playlist '{name}' on YouTube.")
 
-        # Get tracks from Spotify playlist
+                # Get tracks from Spotify playlist
         tracks = get_playlist_tracks(sp, playlist_id)
 
         # Select songs to transfer
         selected_songs = select_songs(tracks)
 
+        # Get existing video IDs in YouTube playlist
+        existing_video_ids = get_videos_in_youtube_playlist(youtube, youtube_playlist_id)
+
         # Add selected songs to the YouTube playlist
         for song in selected_songs:
             video_id = search_youtube_song(youtube, song)
             if video_id:
-                add_song_to_youtube_playlist(youtube, youtube_playlist_id, video_id)
-                print(f"Added: {song}")
-                time.sleep(1)  # Avoid rate limiting
+                if video_id not in existing_video_ids:
+                    add_song_to_youtube_playlist(youtube, youtube_playlist_id, video_id)
+                    print(f"Added: {song}")
+                    time.sleep(1)  # Avoid rate limiting
+                else:
+                    print(f"Skipped (already exists): {song}")
+
+                
+        # Get all video IDs from a YouTube Playlist
+def get_videos_in_youtube_playlist(youtube, playlist_id):
+    video_ids = set()
+    request = youtube.playlistItems().list(
+        part="contentDetails",
+        playlistId=playlist_id,
+        maxResults=50
+    )
+    while request:
+        response = request.execute()
+        for item in response.get("items", []):
+            video_ids.add(item["contentDetails"]["videoId"])
+        request = youtube.playlistItems().list_next(request, response)
+    return video_ids
+
 
 # Main Function
 def main():
