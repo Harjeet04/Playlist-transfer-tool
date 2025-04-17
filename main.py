@@ -127,7 +127,6 @@ def transfer_playlists(sp, youtube):
 
         # Select songs to transfer
         selected_songs = select_songs(tracks)
-
         # Get existing video IDs in YouTube playlist
         existing_video_ids = get_videos_in_youtube_playlist(youtube, youtube_playlist_id)
 
